@@ -4,6 +4,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, DistributedSampler
 from torchvision import datasets, transforms
 from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.multiprocessing as mp
 import os
 
 def check_available_gpus():
@@ -79,6 +80,7 @@ def train(rank, num_gpus):
     
 if __name__ == "__main__":
     num_gpus = check_available_gpus()
+    mp.set_start_method('spawn')
     processes = []
     for rank in range(num_gpus):
         p = torch.multiprocessing.Process(target=init_process, args=(rank, num_gpus, train))
