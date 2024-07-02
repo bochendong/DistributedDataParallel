@@ -10,8 +10,8 @@ export MIOPEN_DISABLE_CACHE=1
 export MIOPEN_CUSTOM_CACHE_DIR='pwd'
 export HOME="/tmp/srun"
 
-module load PrgEnv-gnu
-module load gcc/12.2.0
-module load rocm/5.7.0
+module load PrgEnv-cray/8.3.3
+module load cce/15.0.0
+module load rocm/5.7
 
 python /lustre/orion/bif146/world-shared/enzhi/baby_llama/DistributedDataParallel/Torch_version.py
