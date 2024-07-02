@@ -13,3 +13,5 @@ export HOME="/tmp/srun"
 module load PrgEnv-gnu
 module load gcc/12.2.0
 module load rocm/5.7.0
+
+python /lustre/orion/bif146/world-shared/enzhi/baby_llama/DistributedDataParallel/Torch_version.py
