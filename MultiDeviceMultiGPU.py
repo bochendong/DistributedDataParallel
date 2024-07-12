@@ -38,7 +38,7 @@ def train_model(ddp_model, optimizer, criterion, dataloader, device_id):
 
 def train():
     local_rank = int(os.environ['SLURM_LOCALID'])
-    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
+    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "8080"
     os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
     os.environ['RANK'] = os.environ['SLURM_PROCID']

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A bif146
 #SBATCH -o mult_device.o%j
-#SBATCH -t 00:05:00
+#SBATCH -t 00:15:00
 #SBATCH -N 2
 #SBATCH -p batch
 #
