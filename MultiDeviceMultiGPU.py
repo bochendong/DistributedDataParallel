@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, DistributedSampler
 from torchvision import datasets, transforms
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.multiprocessing as mp
+import torch.distributed as dist
 import os
 import argparse
 
@@ -23,8 +24,10 @@ def check_available_gpus():
         print(f"An error occurred: {e}")
         print("Make sure PyTorch is installed with ROCm support.")
 
-def init_process(rank, world_size, train_fn, backend='nccl'):
-    torch.distributed.init_process_group(backend, rank=rank, world_size=world_size)
+def init_process(rank, world_size, master_addr, master_port, train_fn, backend='nccl'):
+    os.environ['MASTER_ADDR'] = master_addr
+    os.environ['MASTER_PORT'] = master_port
+    dist.init_process_group(backend, rank=rank, world_size=world_size)
     train_fn(rank, world_size)
 
 class SimpleNN(nn.Module):
@@ -81,23 +84,11 @@ if __name__ == "__main__":
     parser.add_argument('--nodes', type=int, default=1, help='number of nodes')
     parser.add_argument('--gpus', type=int, default=1, help='number of gpus per node')
     parser.add_argument('--nr', type=int, default=0, help='ranking within the nodes')
+    parser.add_argument('--master_addr', type=str, default='localhost', help='address of the master node')
+    parser.add_argument('--master_port', type=str, default='29500', help='port of the master node')
     args = parser.parse_args()
     
     world_size = args.gpus * args.nodes
     rank = args.nr * args.gpus
     for gpu in range(args.gpus):
-        mp.spawn(init_process, nprocs=args.gpus, args=(world_size, train))
-
-
-'''
-[W socket.cpp:464] [c10d] The server socket cannot be initialized on [::]:12355 (errno: 97 - Address family not supported by protocol).
-[W socket.cpp:697] [c10d] The client socket cannot be initialized to connect to [localhost.localdomain]:12355 (errno: 97 - Address family not supported by protocol).
-[W socket.cpp:697] [c10d] The client socket cannot be initialized to connect to [localhost.localdomain]:12355 (errno: 97 - Address family not supported by protocol).
-[W socket.cpp:697] [c10d] The client socket cannot be initialized to connect to [localhost.localdomain]:12355 (errno: 97 - Address family not supported by protocol).
-[W socket.cpp:697] [c10d] The client socket cannot be initialized to connect to [localhost.localdomain]:12355 (errno: 97 - Address family not supported by protocol).
-[W socket.cpp:697] [c10d] The client socket cannot be initialized to connect to [localhost.localdomain]:12355 (errno: 97 - Address family not supported by protocol).
-[W socket.cpp:697] [c10d] The client socket cannot be initialized to connect to [localhost.localdomain]:12355 (errno: 97 - Address family not supported by protocol).
-[W socket.cpp:697] [c10d] The client socket cannot be initialized to connect to [localhost.localdomain]:12355 (errno: 97 - Address family not supported by protocol).
-[W socket.cpp:697] [c10d] The client socket cannot be initialized to connect to [localhost.localdomain]:12355 (errno: 97 - Address family not supported by protocol).
-
-'''
+        mp.spawn(init_process, nprocs=args.gpus, args=(world_size, args.master_addr, args.master_port, train))
