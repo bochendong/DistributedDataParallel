@@ -36,7 +36,7 @@ def train_model(ddp_model, optimizer, criterion, dataloader, device_id):
             if batch_idx % 100 == 0:
                 print(f'Train Epoch: {epoch} [{batch_idx * len(data)}/{len(dataloader.dataset)}] Loss: {loss.item()}')
 
-def train(args):
+def train():
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
@@ -50,7 +50,7 @@ def train(args):
     dist.init_process_group(                                   
     	backend='nccl',                                         
    		init_method='env://',                                   
-    	world_size=args.world_size,                              
+    	world_size=int(os.environ['SLURM_NTASKS']),                              
     	rank=int(os.environ['RANK'])                                               
     )
     print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
@@ -78,6 +78,6 @@ def train(args):
     train_model(model, optimizer, criterion, dataloader, device_id)
     dist.destroy_process_group()
 
-def vit_ddp(args):
-    args.world_size = int(os.environ['SLURM_NTASKS'])
-    train(args=args)
+
+if __name__ == '__main__':
+    train()
