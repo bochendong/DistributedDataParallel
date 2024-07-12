@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o gpu_check_output.o%j
-#SBATCH -t 02:00:00
-#SBATCH -N 1
+#SBATCH -o mult_device.o%j
+#SBATCH -t 00:05:00
+#SBATCH -N 2
 #SBATCH -p batch
 #
 
@@ -14,4 +14,6 @@ module load PrgEnv-cray/8.3.3
 module load cce/15.0.0
 module load rocm/5.7.0
 
-python /lustre/orion/bif146/world-shared/enzhi/baby_llama/DistributedDataParallel/Torch_version.py
+python /lustre/orion/bif146/world-shared/enzhi/baby_llama/DistributedDataParallel/MultiDeviceMultiGPU.py \
+    --nodes 2 \
+    --gpus 8 \
