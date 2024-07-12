@@ -83,8 +83,8 @@ def evaluate_model(model, val_loader, device_id):
     accuracy = 100 * correct / total
     return accuracy
 
-def simple_nn_train(args):
-    local_rank = int(os.environ['SLURM_LOCALID'])
+def simple_nn_train(rank, args):
+    local_rank = rank
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
     os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
@@ -129,17 +129,16 @@ def simple_nn_train(args):
     train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, device_id=device_id)
     dist.destroy_process_group()
 
-def simple_nn_ddp(args):
+def simple_nn_ddp(rank, args):
     log(args=args)
     args.world_size = int(os.environ['SLURM_NTASKS'])
-    # mp.spawn(simple_nn_train, nprocs=args.gpus, args=(args,))
-    simple_nn_train(args=args)
+    simple_nn_train(rank, args)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--nodes', type=int, default=1, help='number of nodes')
     parser.add_argument('--gpus', type=int, default=1, help='number of gpus per node')
-    parser.add_argument('--nr', type=int, default=0, help='ranking within the nodes')
+    parser.add_argument('--nr', type=int, default = 0, help='ranking within the nodes')
     parser.add_argument('--logname', type=str, default='training.log', help='log file name')
     parser.add_argument('--num_epochs', type=int, default=10, help='number of epochs to train')
     parser.add_argument('--pretrained', type=bool, default=False, help='use pretrained model or not')
