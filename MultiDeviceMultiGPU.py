@@ -86,7 +86,7 @@ def evaluate_model(model, val_loader, device_id):
 def simple_nn_train(rank, args):
     local_rank = rank
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME'])
-    os.environ['MASTER_PORT'] = "29500"
+    os.environ['MASTER_PORT'] = str(29500 + rank)
     os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
     os.environ['RANK'] = os.environ['SLURM_PROCID']
     print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
