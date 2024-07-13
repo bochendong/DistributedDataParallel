@@ -11,8 +11,6 @@ def parse_args():
     return args
 
 def main(args):
-    os.makedirs(args.output, exist_ok=True)
-    
     if (args.nodes >= 2):
         TrainSimpleNNDDP()
     else:
