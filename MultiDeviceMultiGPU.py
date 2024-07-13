@@ -36,10 +36,10 @@ def train_model(ddp_model, optimizer, criterion, dataloader, device_id):
             if batch_idx % 100 == 0:
                 print(f'Train Epoch: {epoch} [{batch_idx * len(data)}/{len(dataloader.dataset)}] Loss: {loss.item()}')
 
-def train():
+def train(args):
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME'])
-    os.environ['MASTER_PORT'] = "8080"
+    os.environ['MASTER_PORT'] = "29500"
     os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
     os.environ['RANK'] = os.environ['SLURM_PROCID']
     print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
@@ -78,6 +78,7 @@ def train():
     train_model(model, optimizer, criterion, dataloader, device_id)
     dist.destroy_process_group()
 
-
-if __name__ == '__main__':
-    train()
+def TrainSimpleNNDDP(args):
+    args.world_size = int(os.environ['SLURM_NTASKS'])
+    # mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
+    train(args=args)
