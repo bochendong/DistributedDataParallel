@@ -12,7 +12,7 @@ def parse_args():
 
 def main(args):
     if (args.nodes >= 2):
-        TrainSimpleNNDDP()
+        TrainSimpleNNDDP(args)
     else:
         raise "No such task."
     
