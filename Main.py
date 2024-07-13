@@ -11,7 +11,6 @@ def parse_args():
     return args
 
 def main(args):
-    args.output = os.path.join(args.output, args.task)
     os.makedirs(args.output, exist_ok=True)
     
     if (args.nodes >= 2):
